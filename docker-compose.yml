@@ -1,0 +1,51 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: shop-analytics-postgres
+    environment:
+      POSTGRES_DB: shopanalytics
+      POSTGRES_USER: shop
+      POSTGRES_PASSWORD: shop_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U shop -d shopanalytics"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  # --- Planned services (Day 1: not enabled yet) ---
+  #
+  # backend:
+  #   build: ./backend
+  #   container_name: shop-analytics-backend
+  #   environment:
+  #     SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/shopanalytics
+  #     SPRING_DATASOURCE_USERNAME: shop
+  #     SPRING_DATASOURCE_PASSWORD: shop_dev_password
+  #   ports:
+  #     - "8080:8080"
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #
+  # frontend:
+  #   build: ./frontend
+  #   container_name: shop-analytics-frontend
+  #   environment:
+  #     NEXT_PUBLIC_API_URL: http://localhost:8080
+  #   ports:
+  #     - "3000:3000"
+  #   depends_on:
+  #     - backend
+  #
+  # Hadoop / Spark are added in a later step. The plan is:
+  # - namenode + datanode (HDFS) for storing order exports
+  # - a spark service that runs jobs from big-data/spark/
+  # Keeping them commented out on Day 1 so `docker compose up`
+  # stays light while the API and UI are still skeletons.
+
+volumes:
+  postgres_data:

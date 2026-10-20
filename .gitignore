@@ -1,0 +1,53 @@
+# --- Java / Maven ---
+target/
+*.class
+*.jar
+*.war
+!.mvn/wrapper/maven-wrapper.jar
+.mvn/timing.properties
+
+# --- Spring Boot ---
+*.log
+logs/
+
+# --- Node / Next.js ---
+node_modules/
+.next/
+out/
+dist/
+.env*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- Python / PySpark ---
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+.pytest_cache/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# --- Data (keep small samples, ignore generated output) ---
+big-data/output/
+big-data/data/*.parquet
+*.crc
+
+# --- IDE / OS ---
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
+.DS_Store
+Thumbs.db
+
+# --- Environment ---
+.env
+.env.local
