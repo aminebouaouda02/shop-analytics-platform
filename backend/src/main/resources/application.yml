@@ -18,6 +18,13 @@ spring:
 server:
   port: 8080
 
+app:
+  jwt:
+    # Dev default only — set the JWT_SECRET environment variable in production.
+    # Must be at least 32 characters (256 bits) for HS256.
+    secret: ${JWT_SECRET:dev-only-secret-key-change-me-in-production-0123456789}
+    expiration-ms: ${JWT_EXPIRATION_MS:86400000}
+
 logging:
   level:
     com.amine.shopanalytics: DEBUG

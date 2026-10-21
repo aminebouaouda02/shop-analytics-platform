@@ -107,7 +107,9 @@ It reads the sample orders CSV and prints total revenue per category.
   - [x] PySpark skeleton + sample orders CSV
 - [ ] **Products module** — CRUD REST API + validation + tests
 - [ ] **Orders module** — create/list orders, link orders to products
-- [ ] **Authentication** — JWT with Spring Security, register / login
+- [x] **Authentication** — JWT with Spring Security, register / login
+  - [x] `User` entity, `AuthController` (`/api/auth/register`, `/api/auth/login`), JWT filter, BCrypt password hashing
+  - [x] `/login` and `/register` pages, token stored in the browser, protected route group with `/dashboard`
 - [ ] **Frontend catalogue** — product listing and product detail pages
 - [ ] **Frontend orders** — cart / checkout flow (simple version)
 - [ ] **Spark analytics v1** — revenue per category, top products, daily sales
