@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { apiDelete, apiGet, apiPost, apiPut } from "../../../lib/api";
 
 /** Product shape as returned by GET /api/products. */
@@ -438,7 +439,12 @@ export default function ProductsPage() {
               >
                 <div className="flex items-start justify-between gap-2">
                   <h2 className="text-lg font-semibold leading-snug text-slate-900">
-                    {product.name}
+                    <Link
+                      href={`/products/${product.id}`}
+                      className="hover:text-brand-700 hover:underline"
+                    >
+                      {product.name}
+                    </Link>
                   </h2>
                   <span className="shrink-0 rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">
                     {product.category}

@@ -135,7 +135,7 @@ It reads the sample orders CSV and prints total revenue per category.
   - [x] `/login` and `/register` pages, token stored in the browser, protected route group with `/dashboard`
 - [x] **Frontend catalogue** — product and order list pages fetching from the API
   - [x] `/products` and `/orders` pages under the protected route group, linked from `/dashboard`
-- [ ] **Frontend detail pages** — product detail view, create/edit forms
+- [x] **Frontend detail pages** — product detail view with edit form, order detail view with status change; each page shows loading and error states, and list pages link to the detail pages
 - [ ] **Frontend orders** — cart / checkout flow (simple version)
 - [ ] **Spark analytics v1** — revenue per category, top products, daily sales
 - [ ] **Hadoop integration** — HDFS in Docker Compose, read/write from Spark

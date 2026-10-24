@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { apiGet, apiPost } from "../../../lib/api";
 
 /** Order shape as returned by GET /api/orders. */
@@ -289,7 +290,12 @@ export default function OrdersPage() {
                   className="border-b border-slate-100 last:border-0 hover:bg-brand-50/40"
                 >
                   <td className="px-5 py-4 font-semibold text-slate-900">
-                    #{order.id}
+                    <Link
+                      href={`/orders/${order.id}`}
+                      className="text-brand-700 hover:underline"
+                    >
+                      #{order.id}
+                    </Link>
                   </td>
                   <td className="px-5 py-4 text-slate-700">{order.product.name}</td>
                   <td className="px-5 py-4 text-slate-700">× {order.quantity}</td>
