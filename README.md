@@ -105,12 +105,17 @@ It reads the sample orders CSV and prints total revenue per category.
   - [x] Spring Boot skeleton: `Product` / `Order` entities, repositories, health endpoint, basic security config
   - [x] Next.js skeleton: home page, API helper
   - [x] PySpark skeleton + sample orders CSV
-- [ ] **Products module** — CRUD REST API + validation + tests
-- [ ] **Orders module** — create/list orders, link orders to products
+- [x] **Products module** — CRUD REST API + DTO validation
+  - [x] `ProductController`: full CRUD (`POST`/`PUT`/`DELETE` added), `ProductRequest` DTO with `@Valid`
+  - [ ] Controller/service tests (planned Day 8)
+- [x] **Orders module** — CRUD REST API + DTO validation
+  - [x] `OrderController`: create/list/detail/status-update/delete; `OrderRequest` DTO; total price computed server-side from the current product price
 - [x] **Authentication** — JWT with Spring Security, register / login
   - [x] `User` entity, `AuthController` (`/api/auth/register`, `/api/auth/login`), JWT filter, BCrypt password hashing
   - [x] `/login` and `/register` pages, token stored in the browser, protected route group with `/dashboard`
-- [ ] **Frontend catalogue** — product listing and product detail pages
+- [x] **Frontend catalogue** — product and order list pages fetching from the API
+  - [x] `/products` and `/orders` pages under the protected route group, linked from `/dashboard`
+- [ ] **Frontend detail pages** — product detail view, create/edit forms
 - [ ] **Frontend orders** — cart / checkout flow (simple version)
 - [ ] **Spark analytics v1** — revenue per category, top products, daily sales
 - [ ] **Hadoop integration** — HDFS in Docker Compose, read/write from Spark
