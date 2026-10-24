@@ -7,6 +7,22 @@ side that processes sales data to show what is actually selling — revenue by
 category, best-selling products, and trends over time. The transactional part
 and the analytics part are kept separate, the way they would be in a real system.
 
+## Screenshots
+
+The app running locally, with sample data:
+
+**Product catalogue** (`/products`, login required)
+
+![Product catalogue](docs/screenshots/products.png)
+
+**Orders** (`/orders`, login required)
+
+![Orders](docs/screenshots/orders.png)
+
+**Dashboard** (`/dashboard`, login required)
+
+![Dashboard](docs/screenshots/dashboard.png)
+
 ## Tech Stack
 
 **Backend**
