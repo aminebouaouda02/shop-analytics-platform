@@ -2,24 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Day 1 placeholder: Tailwind is wired via package.json / config in a later
-   step if needed. These base styles keep the skeleton readable on its own. */
+@layer base {
+  :root {
+    color-scheme: light;
+  }
 
-:root {
-  color-scheme: light;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-body {
-  margin: 0;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  background: #ffffff;
-  color: #111827;
-}
-
-a {
-  color: inherit;
+  body {
+    @apply bg-slate-100 text-slate-900 antialiased;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
 }

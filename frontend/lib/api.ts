@@ -62,6 +62,47 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   return (await response.json()) as T;
 }
 
+async function readErrorDetail(response: Response): Promise<string> {
+  try {
+    const data = (await response.json()) as { error?: string };
+    if (data.error) {
+      return ` — ${data.error}`;
+    }
+  } catch {
+    // ignore: not a JSON error body
+  }
+  return "";
+}
+
+export async function apiPut<T>(path: string, body: unknown): Promise<T> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "PUT",
+    headers: authHeaders(),
+    body: JSON.stringify(body),
+  });
+
+  if (!response.ok) {
+    const detail = await readErrorDetail(response);
+    throw new Error(`API request failed: ${response.status} ${path}${detail}`);
+  }
+
+  return (await response.json()) as T;
+}
+
+export async function apiDelete(path: string): Promise<void> {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
+    method: "DELETE",
+    headers: authHeaders(),
+  });
+
+  if (!response.ok) {
+    const detail = await readErrorDetail(response);
+    throw new Error(`API request failed: ${response.status} ${path}${detail}`);
+  }
+
+  // Success is usually 204 No Content: there is no body to parse.
+}
+
 export async function checkHealth(): Promise<HealthResponse> {
   return apiGet<HealthResponse>("/api/health");
 }
