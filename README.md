@@ -11,6 +11,10 @@ and the analytics part are kept separate, the way they would be in a real system
 
 The app running locally, with sample data:
 
+**Home page** (`/`)
+
+![Home page](docs/screenshots/home.png)
+
 **Product catalogue** (`/products`, login required)
 
 ![Product catalogue](docs/screenshots/products.png)
