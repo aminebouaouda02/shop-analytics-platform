@@ -7,13 +7,19 @@ Input CSV columns:
     order_id, product_name, category, quantity, unit_price, order_date
 
 Usage:
-    spark-submit sales_analysis.py [path_to_csv]
-    python sales_analysis.py [path_to_csv]
+    spark-submit sales_analysis.py [path_to_csv] [path_to_output_json]
+    python sales_analysis.py [path_to_csv] [path_to_output_json]
 
 If no path is given, it defaults to ../data/sample_orders.csv
 relative to this file's expected location in the project.
+If an output path is given, the result is also written there as JSON
+(the file the backend analytics endpoint reads), for example:
+
+    python sales_analysis.py ../data/orders_large.csv \
+        ../output/revenue_per_category.json
 """
 
+import json
 import os
 import sys
 
@@ -60,11 +66,27 @@ def revenue_per_category(orders_df):
     return result
 
 
+def write_result_json(result, output_path: str) -> None:
+    """Write the aggregated rows as JSON, plus overall totals."""
+    rows = [row.asDict() for row in result.collect()]
+    payload = {
+        "metric": "revenue_per_category",
+        "rows": rows,
+        "total_revenue": round(sum(r["total_revenue"] for r in rows), 2),
+        "order_count": sum(r["order_count"] for r in rows),
+    }
+    os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as handle:
+        json.dump(payload, handle, indent=2)
+    print(f"Wrote result JSON to: {output_path}")
+
+
 def main() -> None:
     default_path = os.path.join(
         os.path.dirname(__file__), "..", "data", "sample_orders.csv"
     )
     input_path = sys.argv[1] if len(sys.argv) > 1 else default_path
+    output_path = sys.argv[2] if len(sys.argv) > 2 else None
 
     spark = build_spark_session()
     spark.sparkContext.setLogLevel("WARN")
@@ -79,6 +101,9 @@ def main() -> None:
 
         print("Total revenue per category:")
         result.show(truncate=False)
+
+        if output_path:
+            write_result_json(result, output_path)
     finally:
         spark.stop()
 

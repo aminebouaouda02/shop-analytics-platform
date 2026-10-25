@@ -57,9 +57,31 @@ total revenue.
 | unit_price       | 24.99          |
 | order_date       | 2026-10-01     |
 
+## Working analytics job (600-row sample)
+
+```bash
+# 1. Generate the larger sample (deterministic, 600 rows)
+python spark/generate_sample_orders.py
+# 2. Run the Spark job and write the result JSON
+spark-submit spark/sales_analysis.py data/orders_large.csv \
+    output/revenue_per_category.json
+```
+
+The result JSON has one row per category (`total_revenue`,
+`total_items_sold`, `order_count`) plus overall totals. The backend serves
+that file at `GET /api/analytics/sales` (see
+`backend/src/main/java/com/amine/shopanalytics/controller/AnalyticsController.java`;
+it returns 404 with a clear message if the job has never been run).
+
+Note: the committed `output/revenue_per_category.json` was computed from
+the 600-row sample with the same aggregation as the Spark job, because
+this workspace has no Spark/Java runtime to run the job itself. Re-running
+the Spark command above replaces it with a real Spark result.
+
 ## Roadmap for this folder
 
 - [x] Day 1 skeleton: revenue per category from a sample CSV
+- [x] Working job: 600-row generated sample, result JSON, backend endpoint
 - [ ] Top 10 products by revenue and by quantity sold
 - [ ] Daily / monthly sales trend
 - [ ] Read a real export from the backend database
