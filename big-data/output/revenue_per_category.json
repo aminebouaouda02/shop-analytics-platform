@@ -1,0 +1,31 @@
+{
+  "metric": "revenue_per_category",
+  "rows": [
+    {
+      "category": "Home",
+      "total_revenue": 28170.93,
+      "total_items_sold": 355,
+      "order_count": 139
+    },
+    {
+      "category": "Electronics",
+      "total_revenue": 21264.09,
+      "total_items_sold": 447,
+      "order_count": 176
+    },
+    {
+      "category": "Clothing",
+      "total_revenue": 12501.97,
+      "total_items_sold": 376,
+      "order_count": 148
+    },
+    {
+      "category": "Grocery",
+      "total_revenue": 4334.66,
+      "total_items_sold": 348,
+      "order_count": 137
+    }
+  ],
+  "total_revenue": 66271.65,
+  "order_count": 600
+}

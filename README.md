@@ -137,7 +137,7 @@ It reads the sample orders CSV and prints total revenue per category.
   - [x] `/products` and `/orders` pages under the protected route group, linked from `/dashboard`
 - [x] **Frontend detail pages** — product detail view with edit form, order detail view with status change; each page shows loading and error states, and list pages link to the detail pages
 - [ ] **Frontend orders** — cart / checkout flow (simple version)
-- [ ] **Spark analytics v1** — revenue per category, top products, daily sales
+- [x] **Spark analytics v1** — revenue per category on a generated 600-row sample, result JSON served by `GET /api/analytics/sales`
 - [ ] **Hadoop integration** — HDFS in Docker Compose, read/write from Spark
 - [ ] **Analytics dashboard** — charts in Next.js from aggregated results
 - [ ] **Polish** — CI, better error handling, deployment notes, screenshots

@@ -19,6 +19,11 @@ server:
   port: 8080
 
 app:
+  analytics:
+    # Folder the Spark job writes its result JSON into; the
+    # /api/analytics/sales endpoint reads the file from here.
+    # Relative to the backend working directory when run locally.
+    results-dir: ${ANALYTICS_RESULTS_DIR:../big-data/output}
   jwt:
     # Dev default only — set the JWT_SECRET environment variable in production.
     # Must be at least 32 characters (256 bits) for HS256.
