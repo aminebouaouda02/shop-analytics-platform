@@ -139,7 +139,8 @@ It reads the sample orders CSV and prints total revenue per category.
 - [ ] **Frontend orders** — cart / checkout flow (simple version)
 - [x] **Spark analytics v1** — revenue per category on a generated 600-row sample, result JSON served by `GET /api/analytics/sales`
 - [ ] **Hadoop integration** — HDFS in Docker Compose, read/write from Spark
-- [ ] **Analytics dashboard** — charts in Next.js from aggregated results
+- [x] **Analytics dashboard** — charts in Next.js from aggregated results
+  - [x] `/dashboard` shows a revenue-per-category bar chart from `GET /api/analytics/sales` (total revenue, items sold and order count per category), with a clear note instead of a chart if the Spark result has not been generated yet
 - [ ] **Polish** — CI, better error handling, deployment notes, screenshots
 
 ## Author

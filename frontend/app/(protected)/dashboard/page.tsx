@@ -24,6 +24,20 @@ interface Order {
   status: string;
 }
 
+interface SalesRow {
+  category: string;
+  total_revenue: number;
+  total_items_sold: number;
+  order_count: number;
+}
+
+interface SalesAnalytics {
+  metric: string;
+  rows: SalesRow[];
+  total_revenue: number;
+  order_count: number;
+}
+
 /**
  * Protected page: only reachable with a stored JWT.
  * Shows the username carried inside the token payload, plus live
@@ -49,6 +63,8 @@ export default function DashboardPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [analytics, setAnalytics] = useState<SalesAnalytics | null>(null);
+  const [analyticsError, setAnalyticsError] = useState("");
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -70,6 +86,14 @@ export default function DashboardPage() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // Spark analytics are loaded separately: if the Spark result has not
+  // been generated yet, the live product/order statistics above still show.
+  useEffect(() => {
+    apiGet<SalesAnalytics>("/api/analytics/sales")
+      .then(setAnalytics)
+      .catch((err: Error) => setAnalyticsError(err.message));
+  }, []);
 
   function handleLogout() {
     logout();
@@ -155,6 +179,65 @@ export default function DashboardPage() {
           ))}
         </div>
       )}
+
+
+      <section className="mt-6 rounded-2xl bg-white p-6 shadow-card ring-1 ring-slate-200/70">
+        <h2 className="text-lg font-semibold text-slate-900">
+          Revenue per category
+        </h2>
+        <p className="mt-1 text-sm text-slate-500">
+          Spark analytics from <code>/api/analytics/sales</code>
+          {analytics
+            ? ` — ${analytics.total_revenue.toFixed(2)} MAD across ${analytics.order_count} orders in the sample.`
+            : ""}
+        </p>
+        {analyticsError ? (
+          <p className="mt-4 rounded-lg bg-amber-50 px-4 py-3 text-sm text-amber-800 ring-1 ring-amber-200">
+            Analytics chart not available yet ({analyticsError}). Run the
+            Spark job first — see <code>big-data/README.md</code> — and the
+            chart appears here without any other change.
+          </p>
+        ) : !analytics ? (
+          <div className="mt-4 space-y-3" aria-label="Loading analytics chart">
+            {[1, 2, 3, 4].map((n) => (
+              <div key={n} className="h-8 animate-pulse rounded bg-slate-100" />
+            ))}
+          </div>
+        ) : (
+          <ul className="mt-4 space-y-3">
+            {analytics.rows.map((row) => {
+              const max = Math.max(
+                ...analytics.rows.map((r) => r.total_revenue),
+                1
+              );
+              const width = (row.total_revenue / max) * 100;
+              return (
+                <li key={row.category}>
+                  <div className="flex flex-wrap items-baseline justify-between gap-2 text-sm">
+                    <span className="font-semibold text-slate-900">
+                      {row.category}
+                    </span>
+                    <span className="text-slate-600">
+                      {row.total_revenue.toFixed(2)} MAD ·{" "}
+                      {row.total_items_sold} items · {row.order_count} orders
+                    </span>
+                  </div>
+                  <div
+                    className="mt-1 h-3 overflow-hidden rounded-full bg-slate-100"
+                    role="img"
+                    aria-label={`${row.category}: ${row.total_revenue.toFixed(2)} MAD`}
+                  >
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-brand-600 to-violet-600"
+                      style={{ width: `${width}%` }}
+                    />
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
 
       <div className="mt-6 grid gap-6 sm:grid-cols-2">
         <Link
