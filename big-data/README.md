@@ -17,18 +17,36 @@ question: *given a lot of orders, what patterns do we see?*
 4. **Display** — The Next.js dashboard will read the aggregated results
    through the backend and show charts.
 
-## Hadoop
+## Hadoop / HDFS (Docker Compose `bigdata` profile)
 
-Hadoop / HDFS is not wired up on Day 1. The Docker Compose file in the
-project root has the planned services commented out.
+HDFS is now wired up in the project-root `docker-compose.yml`, under a
+`bigdata` profile so the default stack stays light:
 
-Planned setup:
-- HDFS (NameNode + DataNode) in Docker Compose
-- Order exports written to HDFS instead of the local filesystem
-- Spark reading from `hdfs://...` paths with the same job logic
+- `namenode` — HDFS NameNode, web UI on http://localhost:9870, HDFS on `hdfs://localhost:9000`
+- `datanode` — HDFS DataNode, web UI on http://localhost:9864
+- `spark` — a one-shot Spark job runner (image `apache/spark-py:3.5.1`),
+  with this folder mounted at `/opt/big-data`
 
-Keeping the first version on local CSV files makes the Spark logic easier
-to test. The storage layer changes later, the aggregation does not.
+```bash
+# From the project root: start PostgreSQL + HDFS
+docker compose --profile bigdata up -d
+
+# Check HDFS is up, and make a folder for order exports
+docker compose --profile bigdata exec namenode hdfs dfs -ls /
+docker compose --profile bigdata exec namenode hdfs dfs -mkdir -p /shop/orders
+
+# Run the Spark job inside a container
+docker compose --profile bigdata run --rm spark \
+  spark-submit spark/sales_analysis.py data/sample_orders.csv
+
+# Stop everything
+docker compose down
+```
+
+What is still local: the Spark job reads CSV files from the local
+filesystem by default (the mounted `big-data/` folder inside the container).
+Pointing its input at an `hdfs://` path is the next step — the storage
+layer changes then, the aggregation logic does not.
 
 ## Running the Day 1 skeleton
 
@@ -86,4 +104,5 @@ the Spark command above replaces it with a real Spark result.
 - [ ] Daily / monthly sales trend
 - [ ] Read a real export from the backend database
 - [ ] Write results as Parquet and load them for the dashboard
-- [ ] Run against HDFS instead of local files
+- [x] HDFS + Spark services in Docker Compose under the `bigdata` profile
+- [ ] Run the Spark job against HDFS instead of local files
