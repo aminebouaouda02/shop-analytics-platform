@@ -153,7 +153,7 @@ It reads the sample orders CSV and prints total revenue per category.
   - [x] PySpark skeleton + sample orders CSV
 - [x] **Products module** — CRUD REST API + DTO validation
   - [x] `ProductController`: full CRUD (`POST`/`PUT`/`DELETE` added), `ProductRequest` DTO with `@Valid`
-  - [ ] Controller/service tests (planned Day 8)
+  - [x] Controller tests (12 JUnit/Mockito tests: `ProductControllerTest`, `OrderControllerTest`, `AuthControllerTest` — create/list/filter, 404/400/409/401 cases, and server-side order total calculation)
 - [x] **Orders module** — CRUD REST API + DTO validation
   - [x] `OrderController`: create/list/detail/status-update/delete; `OrderRequest` DTO; total price computed server-side from the current product price
 - [x] **Authentication** — JWT with Spring Security, register / login
@@ -168,6 +168,22 @@ It reads the sample orders CSV and prints total revenue per category.
 - [x] **Analytics dashboard** — charts in Next.js from aggregated results
   - [x] `/dashboard` shows a revenue-per-category bar chart from `GET /api/analytics/sales` (total revenue, items sold and order count per category), with a clear note instead of a chart if the Spark result has not been generated yet
 - [ ] **Polish** — CI, better error handling, deployment notes, screenshots
+- [ ] Frontend component test setup (deferred: adding Jest + Testing Library needs new dev dependencies and a verified install, so it will be set up with the CI work rather than added unverified)
+
+## Tests
+
+Backend unit tests live in `backend/src/test/java/...` and use JUnit 5
+with Mockito (repositories mocked, no database needed). Run them with:
+
+```bash
+cd backend
+mvn test
+```
+
+Note: Java/Maven are not installed in the workspace where this work was
+prepared, so the tests were checked for consistency with the controllers
+(signatures, status codes, DTO fields) but not executed there — run
+`mvn test` locally or in CI to see them pass.
 
 ## Author
 
