@@ -16,6 +16,53 @@ services:
       timeout: 3s
       retries: 5
 
+  # --- Big Data profile: Hadoop HDFS + Spark ---
+  # These services only start when the profile is requested, so the
+  # default `docker compose up` stays light (PostgreSQL only):
+  #   docker compose --profile bigdata up -d
+  # NameNode web UI: http://localhost:9870 — HDFS address: hdfs://localhost:9000
+  # The `spark` service is a one-shot job runner, not a daemon — run it with
+  # `docker compose --profile bigdata run --rm spark spark-submit ...`
+  # (see big-data/README.md). The Spark job still reads local CSV files by
+  # default; reading from HDFS is the next step.
+  namenode:
+    image: bde2020/hadoop-namenode:2.0.0-hadoop3.2.1-java8
+    profiles: ["bigdata"]
+    container_name: shop-analytics-namenode
+    environment:
+      CLUSTER_NAME: test
+      CORE_CONF_fs_defaultFS: hdfs://namenode:9000
+    ports:
+      - "9870:9870"
+      - "9000:9000"
+    volumes:
+      - namenode_data:/hadoop/dfs/name
+
+  datanode:
+    image: bde2020/hadoop-datanode:2.0.0-hadoop3.2.1-java8
+    profiles: ["bigdata"]
+    container_name: shop-analytics-datanode
+    environment:
+      CLUSTER_NAME: test
+      CORE_CONF_fs_defaultFS: hdfs://namenode:9000
+      SERVICE_PRECONDITION: "namenode:9870"
+    ports:
+      - "9864:9864"
+    volumes:
+      - datanode_data:/hadoop/dfs/data
+    depends_on:
+      - namenode
+
+  spark:
+    image: apache/spark-py:3.5.1
+    profiles: ["bigdata"]
+    container_name: shop-analytics-spark
+    volumes:
+      - ./big-data:/opt/big-data
+    working_dir: /opt/big-data
+    depends_on:
+      - namenode
+
   # --- Planned services (Day 1: not enabled yet) ---
   #
   # backend:
@@ -49,3 +96,5 @@ services:
 
 volumes:
   postgres_data:
+  namenode_data:
+  datanode_data:

@@ -44,7 +44,7 @@ The app running locally, with sample data:
 - CSV as the starting data format, before moving to a data lake layout
 
 **Infra**
-- Docker Compose for local development (PostgreSQL today, more services later)
+- Docker Compose for local development (PostgreSQL by default; Hadoop HDFS + Spark under the `bigdata` profile)
 
 ## Architecture Overview
 
@@ -81,6 +81,32 @@ docker compose up -d postgres
 
 This starts PostgreSQL on `localhost:5432`
 (database: `shopanalytics`, user: `shop`, password: `shop_dev_password`).
+
+### 1b. Start the Big Data profile (optional)
+
+```bash
+docker compose --profile bigdata up -d
+```
+
+This starts PostgreSQL plus the Hadoop NameNode and DataNode. The
+`bigdata` profile is optional on purpose: the default `docker compose up`
+stays light. NameNode web UI: http://localhost:9870 — HDFS address:
+`hdfs://localhost:9000`.
+
+```bash
+# Check HDFS is up
+docker compose --profile bigdata exec namenode hdfs dfs -ls /
+
+# Run the Spark job inside a container (one-shot, not a daemon)
+docker compose --profile bigdata run --rm spark \
+  spark-submit spark/sales_analysis.py data/sample_orders.csv
+
+# Stop everything
+docker compose down
+```
+
+The Spark job still reads local CSV files by default; reading its input
+from HDFS is the next step (see `big-data/README.md`).
 
 ### 2. Run the backend
 
@@ -127,7 +153,7 @@ It reads the sample orders CSV and prints total revenue per category.
   - [x] PySpark skeleton + sample orders CSV
 - [x] **Products module** — CRUD REST API + DTO validation
   - [x] `ProductController`: full CRUD (`POST`/`PUT`/`DELETE` added), `ProductRequest` DTO with `@Valid`
-  - [ ] Controller/service tests (planned Day 8)
+  - [x] Controller tests (12 JUnit/Mockito tests: `ProductControllerTest`, `OrderControllerTest`, `AuthControllerTest` — create/list/filter, 404/400/409/401 cases, and server-side order total calculation)
 - [x] **Orders module** — CRUD REST API + DTO validation
   - [x] `OrderController`: create/list/detail/status-update/delete; `OrderRequest` DTO; total price computed server-side from the current product price
 - [x] **Authentication** — JWT with Spring Security, register / login
@@ -138,10 +164,26 @@ It reads the sample orders CSV and prints total revenue per category.
 - [x] **Frontend detail pages** — product detail view with edit form, order detail view with status change; each page shows loading and error states, and list pages link to the detail pages
 - [ ] **Frontend orders** — cart / checkout flow (simple version)
 - [x] **Spark analytics v1** — revenue per category on a generated 600-row sample, result JSON served by `GET /api/analytics/sales`
-- [ ] **Hadoop integration** — HDFS in Docker Compose, read/write from Spark
+- [x] **Hadoop integration** — HDFS in Docker Compose under the `bigdata` profile (NameNode + DataNode) and a Spark job-runner service; Spark jobs still read local CSV by default, reading from HDFS is the next step
 - [x] **Analytics dashboard** — charts in Next.js from aggregated results
   - [x] `/dashboard` shows a revenue-per-category bar chart from `GET /api/analytics/sales` (total revenue, items sold and order count per category), with a clear note instead of a chart if the Spark result has not been generated yet
 - [ ] **Polish** — CI, better error handling, deployment notes, screenshots
+- [ ] Frontend component test setup (deferred: adding Jest + Testing Library needs new dev dependencies and a verified install, so it will be set up with the CI work rather than added unverified)
+
+## Tests
+
+Backend unit tests live in `backend/src/test/java/...` and use JUnit 5
+with Mockito (repositories mocked, no database needed). Run them with:
+
+```bash
+cd backend
+mvn test
+```
+
+Note: Java/Maven are not installed in the workspace where this work was
+prepared, so the tests were checked for consistency with the controllers
+(signatures, status codes, DTO fields) but not executed there — run
+`mvn test` locally or in CI to see them pass.
 
 ## Author
 
