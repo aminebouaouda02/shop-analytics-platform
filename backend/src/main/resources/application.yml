@@ -18,6 +18,14 @@ spring:
 server:
   port: 8080
 
+springdoc:
+  # Interactive docs: http://localhost:8080/swagger-ui.html
+  # Raw OpenAPI JSON: http://localhost:8080/v3/api-docs
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+
 app:
   analytics:
     # Folder the Spark job writes its result JSON into; the

@@ -40,7 +40,7 @@ The app running locally, with sample data:
 
 **Big Data**
 - Apache Spark (PySpark) for batch sales analysis
-- Hadoop / HDFS — planned, see `big-data/README.md`
+- Hadoop / HDFS under the `bigdata` Docker profile, see `big-data/README.md`
 - CSV as the starting data format, before moving to a data lake layout
 
 **Infra**
@@ -50,12 +50,12 @@ The app running locally, with sample data:
 
 ```
 shop-analytics-platform/
-├── backend/     Spring Boot REST API — products, orders, auth (later)
-├── frontend/    Next.js web app — storefront and analytics dashboard (later)
+├── backend/     Spring Boot REST API — products, orders, auth, analytics
+├── frontend/    Next.js web app — storefront and analytics dashboard
 └── big-data/    Spark jobs that read order data and compute sales KPIs
 ```
 
-Flow (target architecture):
+Flow (implemented end to end):
 
 1. A customer places an order through the Next.js frontend.
 2. The Spring Boot backend validates it and stores it in PostgreSQL.
@@ -63,10 +63,15 @@ Flow (target architecture):
 4. A Spark job aggregates it (for example total revenue per category).
 5. Aggregated results are displayed in the dashboard.
 
-Day 1 only sets up the skeleton of this flow. The endpoints, UI pages, and
-Spark logic are added step by step in the roadmap below.
+All five steps above are implemented: the endpoints, the UI pages and the
+Spark job all exist, and the roadmap below tracks what is done.
 
-## How to Run (Day 1)
+## How to Run
+
+From a clean checkout, starting the database, backend and frontend takes
+under 10 minutes (plus `npm install` the first time). No demo data is seeded
+yet — register an account, then create products and orders through the UI
+or the API below.
 
 ### Prerequisites
 - Docker and Docker Compose
@@ -112,8 +117,6 @@ from HDFS is the next step (see `big-data/README.md`).
 
 ```bash
 cd backend
-./mvnw spring-boot:run
-# or, if you use a system Maven install:
 mvn spring-boot:run
 ```
 
@@ -134,7 +137,7 @@ npm run dev
 
 Open http://localhost:3000
 
-### 4. Try the Spark job (optional, Day 1 skeleton)
+### 4. Try the Spark job (optional)
 
 ```bash
 cd big-data
@@ -143,6 +146,57 @@ spark-submit spark/sales_analysis.py data/sample_orders.csv
 ```
 
 It reads the sample orders CSV and prints total revenue per category.
+
+## API Reference
+
+Base URL when the backend runs locally: `http://localhost:8080`.
+Interactive docs (Swagger UI): `http://localhost:8080/swagger-ui.html`,
+raw OpenAPI JSON: `http://localhost:8080/v3/api-docs`.
+All endpoints except health, auth and the docs themselves require an
+`Authorization: Bearer <token>` header, using the token from login.
+
+| Method | Endpoint | Auth | What it does |
+|--------|----------|------|--------------|
+| GET | `/api/health` | No | Backend health check |
+| POST | `/api/auth/register` | No | Create an account, returns a JWT |
+| POST | `/api/auth/login` | No | Log in, returns a JWT |
+| GET | `/api/products` | Yes | List products, optional `?category=` filter |
+| GET | `/api/products/{id}` | Yes | One product |
+| POST | `/api/products` | Yes | Create a product |
+| PUT | `/api/products/{id}` | Yes | Update a product |
+| DELETE | `/api/products/{id}` | Yes | Delete a product |
+| GET | `/api/orders` | Yes | List orders, optional `?status=` filter |
+| GET | `/api/orders/{id}` | Yes | One order |
+| POST | `/api/orders` | Yes | Create an order (total computed server-side) |
+| PUT | `/api/orders/{id}/status?status=` | Yes | Change an order's status |
+| DELETE | `/api/orders/{id}` | Yes | Delete an order |
+| GET | `/api/analytics/sales` | Yes | Latest Spark result: revenue per category |
+
+Example calls (copy-paste ready, same style as a Postman collection):
+
+```bash
+# 1. Register, then log in and save the token
+curl -X POST http://localhost:8080/api/auth/register \
+  -H "Content-Type: application/json" \
+  -d '{"username":"demo","email":"demo@example.com","password":"demo12345"}'
+
+TOKEN=$(curl -s -X POST http://localhost:8080/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"demo","password":"demo12345"}' \
+  | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>console.log(JSON.parse(d).token))")
+
+# 2. Create a product
+curl -X POST http://localhost:8080/api/products \
+  -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"name":"Headphones","description":"Wireless over-ear","price":79.99,"category":"Electronics","stockQuantity":50}'
+
+# 3. List products and read the analytics result
+curl http://localhost:8080/api/products -H "Authorization: Bearer $TOKEN"
+curl http://localhost:8080/api/analytics/sales -H "Authorization: Bearer $TOKEN"
+```
+
+Error codes: `400` for invalid input, `401` for a missing or bad token,
+`404` for an unknown id, `409` when registering an existing username.
 
 ## Roadmap
 
@@ -167,7 +221,8 @@ It reads the sample orders CSV and prints total revenue per category.
 - [x] **Hadoop integration** — HDFS in Docker Compose under the `bigdata` profile (NameNode + DataNode) and a Spark job-runner service; Spark jobs still read local CSV by default, reading from HDFS is the next step
 - [x] **Analytics dashboard** — charts in Next.js from aggregated results
   - [x] `/dashboard` shows a revenue-per-category bar chart from `GET /api/analytics/sales` (total revenue, items sold and order count per category), with a clear note instead of a chart if the Spark result has not been generated yet
-- [ ] **Polish** — CI, better error handling, deployment notes, screenshots
+- [x] **Polish & documentation** — README rewritten for the finished features, API reference table with copy-paste examples, OpenAPI/Swagger UI enabled, setup under 10 minutes
+- [ ] CI, deployment notes, better error handling
 - [ ] Frontend component test setup (deferred: adding Jest + Testing Library needs new dev dependencies and a verified install, so it will be set up with the CI work rather than added unverified)
 
 ## Tests
