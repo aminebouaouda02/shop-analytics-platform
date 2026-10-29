@@ -15,7 +15,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
  * Security configuration with JWT authentication.
  *
  * Public endpoints: {@code /api/health} and {@code /api/auth/**}
- * (register/login). Every other request must carry a valid
+ * (register/login), plus the OpenAPI docs ({@code /v3/api-docs/**} and
+ * {@code /swagger-ui/**}) so the API can be explored without a token.
+ * Every other request must carry a valid
  * {@code Authorization: Bearer <token>} header, which {@link JwtAuthFilter}
  * turns into a Spring Security authentication before these rules are checked.
  * The API is stateless: no HTTP session is ever created.
@@ -37,7 +39,8 @@ public class SecurityConfig {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/health", "/api/auth/**").permitAll()
+                        .requestMatchers("/api/health", "/api/auth/**",
+                                "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
