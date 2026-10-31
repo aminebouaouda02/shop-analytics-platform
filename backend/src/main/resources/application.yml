@@ -27,6 +27,12 @@ springdoc:
     path: /swagger-ui.html
 
 app:
+  seed:
+    # Demo data: off by default. Start the backend with SEED_ENABLED=true
+    # to create the demo account and sample rows (only into empty tables).
+    enabled: ${SEED_ENABLED:false}
+    # Local demo password only — never a real account. Change with DEMO_PASSWORD.
+    demo-password: ${DEMO_PASSWORD:demo12345}
   analytics:
     # Folder the Spark job writes its result JSON into; the
     # /api/analytics/sales endpoint reads the file from here.
