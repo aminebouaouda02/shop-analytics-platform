@@ -70,7 +70,7 @@ public class AuthController {
     public ResponseEntity<?> login(@Valid @RequestBody LoginRequest request) {
         Optional<User> maybeUser = userRepository.findByUsername(request.getUsername());
         if (maybeUser.isEmpty()
-                || !passwordEncoder.matches(request.getPassword(), maybeUser.get().getPasswordHash())) {
+                || !passwordEncoder.matches(request.getPassword(), maybeUser.get().getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Invalid username or password"));
         }
