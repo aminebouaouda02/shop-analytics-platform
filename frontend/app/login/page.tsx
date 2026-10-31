@@ -90,6 +90,13 @@ export default function LoginPage() {
         </form>
 
         <p className="mt-6 text-center text-sm text-slate-500">
+          Trying the demo? Start the backend with{" "}
+          <code className="font-mono text-xs">SEED_ENABLED=true</code>, then
+          log in as <code className="font-mono text-xs">demo</code> /{" "}
+          <code className="font-mono text-xs">demo12345</code>.
+        </p>
+
+        <p className="mt-6 text-center text-sm text-slate-500">
           No account yet?{" "}
           <Link href="/register" className="font-semibold text-brand-700 hover:text-brand-800">
             Register
